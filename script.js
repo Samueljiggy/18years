@@ -11,8 +11,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
       // Threshold settings for a very strong blow:
-      const blowThreshold = 120;      // Only a very hard breeze will turn off the candle
-      const warningThreshold = 100;   // Triggers a "failed" blow animation if not strong enough
+      const blowThreshold = 60;      // Only a very hard breeze will turn off the candle
+      const warningThreshold = 30;   // Triggers a "failed" blow animation if not strong enough
       let candleBlown = false;
       let lastFailed = 0;
       const failedCooldown = 1000; // 1-second cooldown for failed animations
