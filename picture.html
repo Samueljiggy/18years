@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Her Picture Slideshow Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    /* Card Container */
+    .card {
+      position: relative;
+      width: 90%;
+      max-width: 600px;
+      height: 400px;
+      background: #fff;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    /* Slider */
+    .slider {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease-in-out;
+    }
+    .slide {
+      flex: 0 0 100%;
+      height: 100%;
+    }
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Navigation Buttons */
+    .nav-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .prev {
+      left: 10px;
+    }
+    .next {
+      right: 10px;
+    }
+    /* Slide Indicators */
+    .indicators {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+    .indicator {
+      width: 10px;
+      height: 10px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .indicator.active {
+      background: #e91e63;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="slider" id="slider">
+      <div class="slide">
+        <img src="pic1.jpg" alt="Picture 1" />
+      </div>
+      <div class="slide">
+        <img src="pic2.jpg" alt="Picture 2" />
+      </div>
+      <div class="slide">
+        <img src="pic3.jpg" alt="Picture 3" />
+      </div>
+      <div class="slide">
+        <img src="pic4.jpg" alt="Picture 4" />
+      </div>
+      <!-- Add more slides as needed -->
+    </div>
+    <button class="nav-button prev" id="prevBtn">&#10094;</button>
+    <button class="nav-button next" id="nextBtn">&#10095;</button>
+    <div class="indicators" id="indicators">
+      <div class="indicator active"></div>
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+      <!-- Add more indicators as needed -->
+    </div>
+  </div>
+
+  <script>
+    const slider = document.getElementById('slider');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const indicators = document.getElementById('indicators').children;
+    const slides = document.querySelectorAll('.slide');
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    function updateSlider() {
+      slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+      // Update indicators
+      for (let i = 0; i < indicators.length; i++) {
+        indicators[i].classList.remove('active');
+      }
+      indicators[currentIndex].classList.add('active');
+    }
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = currentIndex === 0 ? totalSlides - 1 : currentIndex - 1;
+      updateSlider();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = currentIndex === totalSlides - 1 ? 0 : currentIndex + 1;
+      updateSlider();
+    });
+
+    // Auto-slide every 5 seconds
+    setInterval(() => {
+      currentIndex = currentIndex === totalSlides - 1 ? 0 : currentIndex + 1;
+      updateSlider();
+    }, 5000);
+
+    // Add click events to indicators
+    for (let i = 0; i < indicators.length; i++) {
+      indicators[i].addEventListener('click', () => {
+        currentIndex = i;
+        updateSlider();
+      });
+    }
+  </script>
+</body>
+</html>
