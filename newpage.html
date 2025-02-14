@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Ensures proper scaling on mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Birthday Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    /* Basic Reset & Body */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Container with 3D perspective */
+    .card-container {
+      width: 90vw;       /* 90% of viewport width on small screens */
+      max-width: 320px;  /* Cap at 320px for larger screens */
+      perspective: 1000px;
+      position: relative;
+    }
+
+    /* The Card */
+    .card {
+      /* Use aspect-ratio for consistent sizing */
+      aspect-ratio: 320 / 450;
+      width: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease;
+    }
+
+    /* Front & Inside of the card */
+    .front,
+    .inside {
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* Front Cover (ID Card Style) */
+    .front {
+      background: linear-gradient(135deg, #a1ffce, #faffd1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: rotateY(0deg);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      padding: 10px;
+    }
+    .front h1 {
+      color: #333;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+    }
+    .front p {
+      color: #444;
+      font-weight: 500;
+      margin-top: 5px;
+    }
+
+    /* ID Card on the front */
+    .id-card {
+      width: 220px;
+      height: 130px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin: 10px 0;
+      gap: 10px;
+    }
+    .id-photo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid #ccc;
+      flex-shrink: 0;
+    }
+    .id-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .id-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .id-info h2 {
+      margin-bottom: 4px;
+      font-size: 1rem;
+      color: #333;
+    }
+    .id-info span {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.2;
+    }
+
+    /* Inside of the card */
+    .inside {
+      transform: rotateY(180deg);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: url('chime.jpg') no-repeat center center;
+      background-size: cover;
+    }
+    /* Semi-transparent overlay for readability */
+    .inside::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: 0;
+    }
+    .inside > * {
+      position: relative;
+      z-index: 1;
+    }
+    .inside h2 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .typed-text {
+      font-size: 1rem;
+      color: #555;
+      margin: 0 auto;
+      max-width: 250px;
+      white-space: pre-wrap;
+      min-height: 60px;
+    }
+
+    /* Flip the card open */
+    .card.open {
+      transform: rotateY(180deg);
+    }
+
+    /* Open Card Button */
+    .open-btn {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff6f91;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    .open-btn:hover {
+      background-color: #ff4f70;
+    }
+
+    /* Close Card Button (hidden initially) */
+    .close-btn {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+      display: none;
+    }
+    .close-btn:hover {
+      background-color: #357ab8;
+    }
+
+    /* Confetti Canvas */
+    #confettiCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="card-container">
+    <div class="card" id="birthdayCard">
+      <!-- Front Cover -->
+      <div class="front">
+        <h1>Now You’re 18!</h1>
+        <div class="id-card">
+          <div class="id-photo">
+            <img src="zunem.jpg" alt="ID Photo" />
+          </div>
+          <div class="id-info">
+            <h2>Official ID</h2>
+            <span>Name: Chimezunem</span>
+            <span>Age: 18</span>
+            <span>Legal & Loving It!</span>
+          </div>
+        </div>
+        <p>Click the button below to open your card</p>
+      </div>
+      <!-- Inside of the card -->
+      <div class="inside">
+        <p class="typed-text" id="typedMessage"></p>
+      </div>
+    </div>
+    <!-- Button to open the card -->
+    <button class="open-btn" id="openCardBtn">Open Card</button>
+    <!-- Button to close the card (hidden initially) -->
+    <button class="close-btn" id="closeCardBtn">Close Card</button>
+  </div>
+
+  <!-- Canvas Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    const card = document.getElementById('birthdayCard');
+    const openBtn = document.getElementById('openCardBtn');
+    const closeBtn = document.getElementById('closeCardBtn');
+    const typedMessageEl = document.getElementById('typedMessage');
+    const confettiCanvas = document.getElementById('confettiCanvas');
+
+    // Make confetti canvas full screen
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+
+    // Your typed message
+    const typedContent = [`Happy Birthday Chimezunem! 🎉💖
+
+Wow...She's Legal today! 🤭😂
+
+Today is your day, and I pray it brings you joy, blessings, and all you wish for! 💕
+Thank you for being you— your vibe is top tier! 🫶🏽
+
+Please don't stress yourself today🖐🏽😂 
+
+Enjoy your day, My Princess! 💅🎂💕`];
+
+    let charIndex = 0;
+    let currentLine = typedContent[0];
+    let isCardOpen = false;
+
+    // Typing effect
+    function typeMessage() {
+      if (!currentLine) return;
+      typedMessageEl.textContent = currentLine.slice(0, charIndex++);
+      if (charIndex <= currentLine.length) {
+        setTimeout(typeMessage, 40); // Adjust typing speed here
+      } else {
+        // Once typing is complete, show the close card button
+        closeBtn.style.display = 'block';
+      }
+    }
+
+    // Confetti effect
+    function launchConfetti() {
+      const duration = 2000; // 2 seconds
+      const end = Date.now() + duration;
+      (function frame() {
+        confetti({
+          particleCount: 7,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 7,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
+    }
+
+    // Open card event
+    openBtn.addEventListener('click', () => {
+      if (!isCardOpen) {
+        card.classList.add('open');
+        isCardOpen = true;
+        openBtn.style.display = 'none'; // Hide the open button
+        typeMessage(); // Start typing the message
+        launchConfetti(); // Launch confetti effect
+      }
+    });
+
+    // Close card event: flip the card back to the legal ID card (front cover)
+    closeBtn.addEventListener('click', () => {
+      // Flip the card back
+      card.classList.remove('open');
+      // Reset card state
+      isCardOpen = false;
+      // Hide the close button and show the open button again
+      closeBtn.style.display = 'none';
+      openBtn.style.display = 'block';
+      // Optionally clear the typed message so it can re-run on reopen
+      typedMessageEl.textContent = "";
+      charIndex = 0;
+    });
+
+    // Resize confetti on window resize
+    window.addEventListener('resize', () => {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
